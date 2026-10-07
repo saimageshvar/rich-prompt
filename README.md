@@ -10,7 +10,7 @@ Not supported: Tab indent (Tab never reaches the edit hook), rendered rich text.
 
 ## Install
 
-Needs a Claude Code build with mods and `"CLAUDE_CODE_ENABLE_FUNCTION_HOOKS": "1"` in the `env` block of `~/.claude/settings.json`.
+Needs Claude Code v2.1.287 or later (mods are on by default).
 
 ```sh
 git clone https://github.com/saimageshvar/rich-prompt ~/rich-prompt
