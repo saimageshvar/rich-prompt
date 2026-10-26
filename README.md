@@ -40,9 +40,20 @@ It's a Claude Code **mod**: nothing to run or invoke. Once it's installed, the p
 Needs **Claude Code v2.1.287+**. Mods are on by default.
 
 ```sh
+npx skills add saimageshvar/rich-prompt -g -a claude-code
+```
+
+Drop `-g` to install into the current project only.
+
+<details>
+<summary>Manual install (clone + symlink)</summary>
+
+```sh
 git clone https://github.com/saimageshvar/rich-prompt ~/rich-prompt
 ln -s ~/rich-prompt ~/.claude/skills/rich-prompt   # every session, hot-reloaded
 ```
+
+</details>
 
 Or try it for one session:
 
