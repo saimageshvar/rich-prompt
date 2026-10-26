@@ -36,6 +36,28 @@ test('foreign closers are not swallowed; stale state is cleared', async () => {
   await run(ed, key('(', 'x', 1))
   expect(await run(ed, key('(x)', ')', 2))).toEqual({ text: '(x))', cursor: 3 })
 })
+test('closer still steps over after typing inside the pair, nested pairs too', async () => {
+  const ed = createEditor()
+  await run(ed, key('', '('))
+  await run(ed, key('()', 'x', 1))
+  expect(await run(ed, key('(x)', ')', 2))).toEqual({ text: '(x)', cursor: 3 })
+  await run(ed, key('', '('))
+  await run(ed, key('()', '[', 1))
+  await run(ed, key('([])', 'a', 2))
+  expect(await run(ed, key('([a])', ']', 3))).toEqual({ text: '([a])', cursor: 4 })
+  expect(await run(ed, key('([a])', ')', 4))).toEqual({ text: '([a])', cursor: 5 })
+})
+test('backspace inside a non-empty pair deletes one char; typing after the pair forgets it', async () => {
+  const ed = createEditor()
+  await run(ed, key('', '('))
+  await run(ed, key('()', 'x', 1))
+  const bs = { ...key('(x)', ''), cursor: 2, start: 1, end: 2, inputText: '', key: { key: 'backspace' } }
+  expect(await run(ed, bs)).toEqual({ text: '()', cursor: 1 })
+  expect(await run(ed, key('()', ')', 1))).toEqual({ text: '()', cursor: 2 })
+  await run(ed, key('', '('))
+  await run(ed, key('()', ' ', 2))
+  expect((await run(ed, key('() ', ')', 1))).text).toBe('()) ')
+})
 test('backquote pairs only at word start; never on paste or selection', async () => {
   const ed = createEditor()
   expect((await run(ed, key('it', '`'))).text).toBe('it`')

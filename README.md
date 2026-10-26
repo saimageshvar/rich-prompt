@@ -21,7 +21,7 @@ It's a Claude Code **mod**: nothing to run or invoke. Once it's installed, the p
 | `    - nested` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `    - │` | ↳ **Nesting is kept** |
 | `  indented` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `  │` | ⇥ **Auto-indent** keeps leading whitespace |
 | `(`  `[`  `` ` `` | `(│)`  `[│]`  `` `│` `` | 🔗 **Auto-pair** |
-| `(` then `)` | `()│` | ⏭ **Closer steps over** a fresh pair, no `())` |
+| `(` `x` then `)` | `(x)│` | ⏭ **Closer steps over** the auto-inserted one, no `(x))` |
 | `(` then <kbd>Backspace</kbd> | *(nothing)* | ⌫ **Backspace deletes both** halves of an empty pair |
 
 `│` is the cursor. <kbd>Shift</kbd>+<kbd>Enter</kbd> means whatever key your terminal uses for a newline in the prompt.
