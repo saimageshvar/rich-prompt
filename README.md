@@ -15,16 +15,16 @@ It's a Claude Code **mod**: nothing to run or invoke. Once it's installed, the p
 
 | You type | You get | |
 |---|---|---|
-| `- buy milk` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `- buy milk`<br>`- ▌` | 📝 **Bullets continue** (`-`, `*`, `+`) |
-| `1. clone` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `1. clone`<br>`2. ▌` | 🔢 **Numbers count up** |
+| `- buy milk` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `- buy milk`<br>`- │` | 📝 **Bullets continue** (`-`, `*`, `+`) |
+| `1. clone` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `1. clone`<br>`2. │` | 🔢 **Numbers count up** |
 | <kbd>Shift</kbd>+<kbd>Enter</kbd> on an empty `- ` | the empty bullet disappears | 🛑 **Ends the list** |
-| `    - nested` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `    - ▌` | ↳ **Nesting is kept** |
-| `  indented` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `  ▌` | ⇥ **Auto-indent** keeps leading whitespace |
-| `(`  `[`  `` ` `` | `(▌)`  `[▌]`  `` `▌` `` | 🔗 **Auto-pair** |
-| `(` then `)` | `()▌` | ⏭ **Closer steps over** a fresh pair, no `())` |
+| `    - nested` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `    - │` | ↳ **Nesting is kept** |
+| `  indented` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `  │` | ⇥ **Auto-indent** keeps leading whitespace |
+| `(`  `[`  `` ` `` | `(│)`  `[│]`  `` `│` `` | 🔗 **Auto-pair** |
+| `(` then `)` | `()│` | ⏭ **Closer steps over** a fresh pair, no `())` |
 | `(` then <kbd>Backspace</kbd> | *(nothing)* | ⌫ **Backspace deletes both** halves of an empty pair |
 
-`▌` is the cursor. <kbd>Shift</kbd>+<kbd>Enter</kbd> means whatever key your terminal uses for a newline in the prompt.
+`│` is the cursor. <kbd>Shift</kbd>+<kbd>Enter</kbd> means whatever key your terminal uses for a newline in the prompt.
 
 ### Things it leaves alone
 
