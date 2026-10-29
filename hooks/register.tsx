@@ -70,6 +70,18 @@ const lineEnd = (text: string, from: number) => {
   return i < 0 ? -1 : i + 1
 }
 
+const outdent = (e: PromptEditInput, lineStart: number, m: RegExpExecArray) => {
+  const parent = parentItem(e.text, lineStart, m[1].length)
+  const indent = parent?.[1] ?? ''
+  const marker = parent ? nextMarker(parent) : (m[2] ?? '1.')
+  const prefix = `${indent}${marker} `
+  const text = e.text.slice(0, lineStart) + prefix + e.text.slice(e.end)
+  const out = marker.endsWith('.')
+    ? renumberFrom(text, lineEnd(text, lineStart), indent.length, succ(marker.slice(0, -1)))
+    : text
+  return { text: out, cursor: lineStart + prefix.length }
+}
+
 const listPrefix = (e: PromptEditInput, upto = e.start) => {
   const lineStart = e.text.lastIndexOf('\n', e.start - 1) + 1
   const before = e.text.slice(lineStart, upto)
@@ -92,17 +104,7 @@ export const createEditor = () => {
       const rest = e.text.slice(e.end, (e.text.indexOf('\n', e.end) + 1 || e.text.length + 1) - 1)
       if (before !== undefined) {
         if (m && before.length === m[0].length && isBlank(rest)) {
-          if (m[1]) {
-            const parent = parentItem(e.text, lineStart, m[1].length)
-            const indent = parent?.[1] ?? ''
-            const marker = parent ? nextMarker(parent) : (m[2] ?? '1.')
-            const prefix = `${indent}${marker} `
-            const text = e.text.slice(0, lineStart) + prefix + e.text.slice(e.end)
-            const out = marker.endsWith('.')
-              ? renumberFrom(text, lineEnd(text, lineStart), indent.length, succ(marker.slice(0, -1)))
-              : text
-            return { r: { text: out, cursor: lineStart + prefix.length }, ats }
-          }
+          if (m[1]) return { r: outdent(e, lineStart, m), ats }
           return { r: { text: e.text.slice(0, lineStart) + e.text.slice(e.end), cursor: lineStart }, ats }
         }
         const lead = m ? (m[2] || succ(m[3]) ? `${m[1]}${nextMarker(m)} ` : m[1]) : /^\s*/.exec(before)![0]
@@ -119,6 +121,7 @@ export const createEditor = () => {
     if (typed === '' && e.end - e.start === 1 && e.key?.key === 'backspace') {
       const { lineStart, before, m } = listPrefix(e, e.end)
       if (m && m[0].length === before!.length && isBlank(e.text.slice(e.end, e.text.indexOf('\n', e.end) + 1 || undefined))) {
+        if (m[1]) return { r: outdent(e, lineStart, m), ats }
         return { r: await next({ ...e, start: lineStart }), ats }
       }
     }

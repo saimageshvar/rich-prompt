@@ -20,7 +20,7 @@ It's a Claude Code **mod**: nothing to run or invoke. Once it's installed, the p
 | <kbd>Shift</kbd>+<kbd>Enter</kbd> on an empty `- ` | the empty bullet disappears | 🛑 **Ends the list** |
 | <kbd>Space</kbd> <kbd>Space</kbd> right after an empty marker (`1. │`) | `   a. │` | ⇥ **Sub-indent** without Tab: the child marker follows the parent (`1.` → `a.` → `-`, bullets stay bullets) |
 | <kbd>Shift</kbd>+<kbd>Enter</kbd> on an empty `    - ` | one level up: `- │` | ⇤ **Outdents** before ending the list |
-| <kbd>Backspace</kbd> right after an empty `- ` / `2. ` | the whole marker goes | ⌫ **Marker backspace** |
+| <kbd>Backspace</kbd> right after an empty `- ` / `2. ` | nested: back up one level; top level: the marker goes | ⌫ **Marker backspace** |
 | new `2. ` inserted in the middle of `1. 2. 3.` | the items below renumber | 🔢 **Renumbers** |
 | `    - nested` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `    - │` | ↳ **Nesting is kept** |
 | `  indented` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `  │` | ⇥ **Auto-indent** keeps leading whitespace |

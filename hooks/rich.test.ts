@@ -18,11 +18,13 @@ test('Enter on an empty nested item outdents to the parent level before ending t
   expect((await run(ed, key('  - ', '\n'))).text).toBe('- ')
   expect((await run(ed, key('- a\n    - b\n        - ', '\n'))).text).toBe('- a\n    - b\n    - ')
 })
-test('Backspace right after an empty marker removes the whole marker', async () => {
+test('Backspace right after an empty marker outdents a nested item, removes a top-level one', async () => {
   const ed = createEditor()
   const bs = (text: string, pos = text.length) => ({ ...key(text, ''), cursor: pos, start: pos - 1, end: pos, inputText: '', key: { key: 'backspace' } })
   expect(await run(ed, bs('- a\n- '))).toEqual({ text: '- a\n', cursor: 4 })
-  expect((await run(ed, bs('1. a\n  2. '))).text).toBe('1. a\n')
+  expect((await run(ed, bs('1. a\n  2. '))).text).toBe('1. a\n2. ')
+  expect(await run(ed, bs('1. a\n   a. x\n   b. '))).toEqual({ text: '1. a\n   a. x\n2. ', cursor: 16 })
+  expect((await run(ed, bs('- a\n  - b\n    - '))).text).toBe('- a\n  - b\n  - ')
   expect((await run(ed, bs('- abc', 2))).text).toBe('-abc')
   expect((await run(ed, bs('- a'))).text).toBe('- ')
   expect((await run(ed, bs('```\n- '))).text).toBe('```\n-')
