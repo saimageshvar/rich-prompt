@@ -83,7 +83,7 @@ export const createEditor = () => {
 
   const edit = async (e: PromptEditInput, next: Next, ats: number[]) => {
     const typed = e.inputText
-    const isInsert = e.start === e.end && typed.length === 1 && e.key?.key === typed
+    const isInsert = e.start === e.end && typed.length === 1 && (e.key?.key === typed || (typed === ' ' && e.key?.key === 'space'))
 
     if (typed === '\n') {
       const { lineStart, before, m } = listPrefix(e)

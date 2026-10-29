@@ -45,7 +45,7 @@ test('letter lists continue, renumber, outdent; z ends the sequence', async () =
 })
 test('a space after an empty marker nests it: markers follow the parent, indent is the parent content column', async () => {
   const ed = createEditor()
-  const sp = (text: string) => key(text, ' ')
+  const sp = (text: string) => ({ ...key(text, ' '), key: { key: 'space' } })
   expect(await run(ed, sp('1. a\n2. '))).toEqual({ text: '1. a\n   a. ', cursor: 11 })
   expect((await run(ed, sp('- a\n  - b\n- '))).text).toBe('- a\n  - b\n  - ')
   expect((await run(ed, sp('1. a\n   a. x\n2. '))).text).toBe('1. a\n   a. x\n   b. ')
