@@ -34,6 +34,15 @@ test('inserting a numbered item renumbers the items after it, nested ones untouc
   expect((await run(ed, key('1. a\n- b', '\n', 4))).text).toBe('1. a\n2. \n- b')
   expect((await run(ed, key('1. a\n   1. x\n   2. y\n   3. ', '\n'))).text).toBe('1. a\n   1. x\n   2. y\n2. ')
 })
+test('letter lists continue, renumber, outdent; z ends the sequence', async () => {
+  const ed = createEditor()
+  expect(await run(ed, key('a. x', '\n'))).toEqual({ text: 'a. x\nb. ', cursor: 8 })
+  expect((await run(ed, key('B. x', '\n'))).text).toBe('B. x\nC. ')
+  expect((await run(ed, key('a. x\nb. y\nc. z', '\n', 4))).text).toBe('a. x\nb. \nc. y\nd. z')
+  expect((await run(ed, key('a. x\n   - ', '\n'))).text).toBe('a. x\nb. ')
+  expect((await run(ed, key('a. x\nb. ', '\n'))).text).toBe('a. x\n')
+  expect((await run(ed, key('z. x', '\n'))).text).toBe('z. x\n')
+})
 test('Enter between marker and text keeps the item; blank lines do not accumulate indent', async () => {
   const ed = createEditor()
   expect((await run(ed, key('- abc', '\n', 2))).text).toBe('- \n- abc')
@@ -81,13 +90,11 @@ test('backspace inside a non-empty pair deletes one char; typing after the pair 
   await run(ed, key('()', ' ', 2))
   expect((await run(ed, key('() ', ')', 1))).text).toBe('()) ')
 })
-test('backquote pairs only at word start; never on paste; a selection is wrapped', async () => {
+test('backquote pairs only at word start; never on paste or selection', async () => {
   const ed = createEditor()
   expect((await run(ed, key('it', '`'))).text).toBe('it`')
   expect((await run(ed, key('a ', '`'))).text).toBe('a ``')
   expect((await run(ed, key('foo', '(', 0))).text).toBe('(foo')
   expect((await run(ed, { ...key('', '('), key: undefined })).text).toBe('(')
-  expect((await run(ed, { ...key('ab', '('), start: 0, end: 2 })).text).toBe('(ab)')
-  expect(await run(ed, { ...key('a bc d', '`'), start: 2, end: 4 })).toEqual({ text: 'a `bc` d', cursor: 6 })
-  expect((await run(ed, { ...key('ab', '('), start: 0, end: 2, key: undefined })).text).toBe('(')
+  expect((await run(ed, { ...key('ab', '('), start: 0, end: 2 })).text).toBe('(')
 })

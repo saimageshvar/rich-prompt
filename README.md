@@ -16,7 +16,7 @@ It's a Claude Code **mod**: nothing to run or invoke. Once it's installed, the p
 | You type | You get | |
 |---|---|---|
 | `- buy milk` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `- buy milk`<br>`- │` | 📝 **Bullets continue** (`-`, `*`, `+`) |
-| `1. clone` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `1. clone`<br>`2. │` | 🔢 **Numbers count up** |
+| `1. clone` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `1. clone`<br>`2. │` | 🔢 **Numbers count up** (`a.` `B.` letters too) |
 | <kbd>Shift</kbd>+<kbd>Enter</kbd> on an empty `- ` | the empty bullet disappears | 🛑 **Ends the list** |
 | <kbd>Shift</kbd>+<kbd>Enter</kbd> on an empty `    - ` | one level up: `- │` | ⇤ **Outdents** before ending the list |
 | <kbd>Backspace</kbd> right after an empty `- ` / `2. ` | the whole marker goes | ⌫ **Marker backspace** |
@@ -25,7 +25,6 @@ It's a Claude Code **mod**: nothing to run or invoke. Once it's installed, the p
 | `  indented` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `  │` | ⇥ **Auto-indent** keeps leading whitespace |
 | `(`  `[`  `` ` `` | `(│)`  `[│]`  `` `│` `` | 🔗 **Auto-pair** |
 | `(` `x` then `)` | `(x)│` | ⏭ **Closer steps over** the auto-inserted one, no `(x))` |
-| select `word`, then type `(` `[` or `` ` `` | `(word)│` | 🎁 **Wraps the selection** |
 | `(` then <kbd>Backspace</kbd> | *(nothing)* | ⌫ **Backspace deletes both** halves of an empty pair |
 
 `│` is the cursor. <kbd>Shift</kbd>+<kbd>Enter</kbd> means whatever key your terminal uses for a newline in the prompt.
@@ -33,7 +32,7 @@ It's a Claude Code **mod**: nothing to run or invoke. Once it's installed, the p
 ### Things it leaves alone
 
 - Text inside <code>```</code> code fences never gets list continuation.
-- Paste is never auto-paired.
+- Paste and selections are never auto-paired.
 - `` ` `` only pairs at the start of a word, so ``don`t`` stays intact.
 - Brackets only pair when the next character is a space, a closing bracket, or the end of the line. Typing `(` in front of a word won't add a stray `)`.
 

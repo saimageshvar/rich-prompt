@@ -1,1 +1,1 @@
-{ "name": "rich-prompt", "version": "0.3.0", "description": "Prompt box list continuation, auto-indent and ( [ ` auto-pairing", "author": { "name": "Sai Mageshvar" } }
+{ "name": "rich-prompt", "version": "0.3.1", "description": "Prompt box list continuation, auto-indent and ( [ ` auto-pairing", "author": { "name": "Sai Mageshvar" } }

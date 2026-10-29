@@ -1,6 +1,6 @@
 import type { PromptEditInput, PromptEditResult, Register } from 'claude-code'
 
-const ITEM = /^(\s*)(?:([-*+])|(\d+)\.)\s+/
+const ITEM = /^(\s*)(?:([-*+])|(\d+|[A-Za-z])\.)\s+/
 const PAIRS: Record<string, string> = { '(': ')', '[': ']', '`': '`' }
 const BEFORE_OPENER = /[\s(\[{]/
 const BEFORE_CLOSER = /[\s)\]}]/
@@ -11,7 +11,16 @@ type Armed = { ats: number[]; len: number }
 
 const isBlank = (s: string) => s.trim() === ''
 
-const nextMarker = (m: RegExpExecArray) => (m[2] ?? `${Number(m[3]) + 1}.`)
+const succ = (label: string, by = 1) => {
+  if (/\d/.test(label)) return String(Number(label) + by)
+  const c = label.charCodeAt(0) + by
+  return c <= (label < 'a' ? 90 : 122) ? String.fromCharCode(c) : undefined
+}
+
+const nextMarker = (m: RegExpExecArray) => {
+  const label = m[3] && succ(m[3])
+  return m[2] ?? (label ? `${label}.` : '-')
+}
 
 const parentItem = (text: string, lineStart: number, indent: number) => {
   for (let end = lineStart - 1; end >= 0; ) {
@@ -24,16 +33,18 @@ const parentItem = (text: string, lineStart: number, indent: number) => {
   }
 }
 
-const renumberFrom = (text: string, at: number, indent: number, n: number) => {
+const renumberFrom = (text: string, at: number, indent: number, first: string | undefined) => {
+  let label = first
   if (at < 0) return text
   const lines = text.slice(at).split('\n')
-  for (let i = 0; i < lines.length; i++) {
+  for (let i = 0; i < lines.length && label; i++) {
     const m = ITEM.exec(lines[i])
     const depth = /^\s*/.exec(lines[i])![0].length
     if (isBlank(lines[i]) || depth < indent) break
     if (depth > indent) continue
     if (!m?.[3]) break
-    lines[i] = lines[i].replace(/^(\s*)\d+/, `$1${n++}`)
+    lines[i] = lines[i].replace(/^(\s*)(\d+|[A-Za-z])/, `$1${label}`)
+    label = succ(label)
   }
   return text.slice(0, at) + lines.join('\n')
 }
@@ -70,27 +81,22 @@ export const createEditor = () => {
             const marker = parent ? nextMarker(parent) : (m[2] ?? '1.')
             const prefix = `${indent}${marker} `
             const text = e.text.slice(0, lineStart) + prefix + e.text.slice(e.end)
-            const out = /^\d/.test(marker)
-              ? renumberFrom(text, lineEnd(text, lineStart), indent.length, Number.parseInt(marker, 10) + 1)
+            const out = marker.endsWith('.')
+              ? renumberFrom(text, lineEnd(text, lineStart), indent.length, succ(marker.slice(0, -1)))
               : text
             return { r: { text: out, cursor: lineStart + prefix.length }, ats }
           }
           return { r: { text: e.text.slice(0, lineStart) + e.text.slice(e.end), cursor: lineStart }, ats }
         }
-        const lead = m ? `${m[1]}${m[2] ?? `${Number(m[3]) + 1}.`} ` : /^\s*/.exec(before)![0]
+        const lead = m ? (m[2] || succ(m[3]) ? `${m[1]}${nextMarker(m)} ` : m[1]) : /^\s*/.exec(before)![0]
         if (lead) {
           const r = await next({ ...e, inputText: '\n' + lead })
           if (!m?.[3]) return { r, ats }
-          const text = renumberFrom(r.text, lineEnd(r.text, r.cursor), m[1].length, Number(m[3]) + 2)
+          const text = renumberFrom(r.text, lineEnd(r.text, r.cursor), m[1].length, succ(m[3], 2))
           return { r: { ...r, text }, ats }
         }
       }
       return { r: await next(e), ats }
-    }
-
-    if (e.start !== e.end && typed.length === 1 && e.key?.key === typed && PAIRS[typed]) {
-      const wrapped = typed + e.text.slice(e.start, e.end) + PAIRS[typed]
-      return { r: await next({ ...e, inputText: wrapped }), ats }
     }
 
     if (typed === '' && e.end - e.start === 1 && e.key?.key === 'backspace') {
