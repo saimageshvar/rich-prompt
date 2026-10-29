@@ -18,7 +18,7 @@ It's a Claude Code **mod**: nothing to run or invoke. Once it's installed, the p
 | `- buy milk` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `- buy milk`<br>`- │` | 📝 **Bullets continue** (`-`, `*`, `+`) |
 | `1. clone` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `1. clone`<br>`2. │` | 🔢 **Numbers count up** (`a.` `B.` letters too) |
 | <kbd>Shift</kbd>+<kbd>Enter</kbd> on an empty `- ` | the empty bullet disappears | 🛑 **Ends the list** |
-| a <kbd>Space</kbd> right after an empty marker (`1. │`) | `   a. │` | ⇥ **Sub-indent** without Tab: the child marker follows the parent (`1.` → `a.` → `-`, bullets stay bullets) |
+| <kbd>Space</kbd> <kbd>Space</kbd> right after an empty marker (`1. │`) | `   a. │` | ⇥ **Sub-indent** without Tab: the child marker follows the parent (`1.` → `a.` → `-`, bullets stay bullets) |
 | <kbd>Shift</kbd>+<kbd>Enter</kbd> on an empty `    - ` | one level up: `- │` | ⇤ **Outdents** before ending the list |
 | <kbd>Backspace</kbd> right after an empty `- ` / `2. ` | the whole marker goes | ⌫ **Marker backspace** |
 | new `2. ` inserted in the middle of `1. 2. 3.` | the items below renumber | 🔢 **Renumbers** |
@@ -32,7 +32,7 @@ It's a Claude Code **mod**: nothing to run or invoke. Once it's installed, the p
 
 ### Things it leaves alone
 
-- A space after an empty marker only nests when there is an item to nest under at the same level; otherwise it is a plain space.
+- Two spaces after an empty marker only nest when there is an item to nest under at the same level; otherwise it is a plain space.
 - Text inside <code>```</code> code fences never gets list continuation.
 - Paste and selections are never auto-paired.
 - `` ` `` only pairs at the start of a word, so ``don`t`` stays intact.

@@ -8,6 +8,7 @@ const FENCE = /^\s*```/gm
 
 type Next = (e: PromptEditInput) => Promise<PromptEditResult>
 type Armed = { ats: number[]; len: number }
+type Spaced = { at: number; len: number }
 
 const isBlank = (s: string) => s.trim() === ''
 
@@ -80,8 +81,9 @@ const listPrefix = (e: PromptEditInput, upto = e.start) => {
 
 export const createEditor = () => {
   let armed: Armed | undefined
+  let spaced: Spaced | undefined
 
-  const edit = async (e: PromptEditInput, next: Next, ats: number[]) => {
+  const edit = async (e: PromptEditInput, next: Next, ats: number[], spaced: boolean) => {
     const typed = e.inputText
     const isInsert = e.start === e.end && typed.length === 1 && (e.key?.key === typed || (typed === ' ' && e.key?.key === 'space'))
 
@@ -122,18 +124,23 @@ export const createEditor = () => {
     }
 
     if (isInsert && typed === ' ') {
-      const { lineStart, before, m } = listPrefix(e)
-      const rest = e.text.slice(e.end, (e.text.indexOf('\n', e.end) + 1 || e.text.length + 1) - 1)
-      const target = m && before!.length === m[0].length && isBlank(rest) ? nestUnder(e.text, lineStart, m[1].length) : undefined
-      if (m && target) {
-        const { anchor, sibling } = target
-        const indent = sibling ? sibling[1] : ' '.repeat(anchor[0].length)
-        const marker = sibling ? nextMarker(sibling) : childMarker(anchor)
-        const prefix = `${indent}${marker} `
-        let text = e.text.slice(0, lineStart) + prefix + e.text.slice(e.end)
-        if (m[3]) text = renumberFrom(text, lineEnd(text, lineStart), m[1].length, m[3])
-        if (marker.endsWith('.')) text = renumberFrom(text, lineEnd(text, lineStart), indent.length, succ(marker.slice(0, -1)))
-        return { r: { text, cursor: lineStart + prefix.length }, ats }
+      const withSpace = { ...e, text: e.text.slice(0, e.start) + ' ' + e.text.slice(e.start) }
+      const after = listPrefix(withSpace, e.start + 1)
+      const emptyAfter = after.m && after.before!.length === after.m[0].length && isBlank(e.text.slice(e.end, (e.text.indexOf('\n', e.end) + 1 || e.text.length + 1) - 1))
+      if (emptyAfter) {
+        const { lineStart, m } = after
+        const target = spaced ? nestUnder(e.text, lineStart, m![1].length) : undefined
+        if (target) {
+          const { anchor, sibling } = target
+          const indent = sibling ? sibling[1] : ' '.repeat(anchor[0].length)
+          const marker = sibling ? nextMarker(sibling) : childMarker(anchor)
+          const prefix = `${indent}${marker} `
+          let text = e.text.slice(0, lineStart) + prefix + e.text.slice(e.end)
+          if (m![3]) text = renumberFrom(text, lineEnd(text, lineStart), m![1].length, m![3])
+          if (marker.endsWith('.')) text = renumberFrom(text, lineEnd(text, lineStart), indent.length, succ(marker.slice(0, -1)))
+          return { r: { text, cursor: lineStart + prefix.length }, ats }
+        }
+        return { r: await next(e), ats, spaced: !spaced }
       }
     }
 
@@ -163,8 +170,11 @@ export const createEditor = () => {
 
   return async (e: PromptEditInput, next: Next): Promise<PromptEditResult> => {
     const live = armed && armed.len === e.text.length ? armed.ats : []
+    const wasSpaced = spaced?.len === e.text.length && spaced.at === e.start
     armed = undefined
-    const { r, ats, added } = await edit(e, next, live)
+    spaced = undefined
+    const { r, ats, added, spaced: pressed } = await edit(e, next, live, wasSpaced)
+    if (pressed) spaced = { at: r.cursor, len: r.text.length }
     // Closers we inserted stay type-over-able while edits happen before them; leaving the pair forgets them
     const delta = r.text.length - e.text.length
     const kept = ats.filter(at => at >= e.end).map(at => at + delta)
