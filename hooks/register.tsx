@@ -49,6 +49,21 @@ const renumberFrom = (text: string, at: number, indent: number, first: string | 
   return text.slice(0, at) + lines.join('\n')
 }
 
+const nestUnder = (text: string, lineStart: number, indent: number) => {
+  let sibling: RegExpExecArray | undefined
+  for (let end = lineStart - 1; end >= 0; ) {
+    const start = text.lastIndexOf('\n', end - 1) + 1
+    const line = text.slice(start, end)
+    if (isBlank(line)) return undefined
+    const m = ITEM.exec(line)
+    if (m && m[1].length <= indent) return m[1].length === indent ? { anchor: m, sibling } : undefined
+    if (m && (!sibling || m[1].length < sibling[1].length)) sibling = m
+    end = start - 1
+  }
+}
+
+const childMarker = (m: RegExpExecArray) => m[2] ?? (/\d/.test(m[3]) ? 'a.' : '-')
+
 const lineEnd = (text: string, from: number) => {
   const i = text.indexOf('\n', from)
   return i < 0 ? -1 : i + 1
@@ -103,6 +118,22 @@ export const createEditor = () => {
       const { lineStart, before, m } = listPrefix(e, e.end)
       if (m && m[0].length === before!.length && isBlank(e.text.slice(e.end, e.text.indexOf('\n', e.end) + 1 || undefined))) {
         return { r: await next({ ...e, start: lineStart }), ats }
+      }
+    }
+
+    if (isInsert && typed === ' ') {
+      const { lineStart, before, m } = listPrefix(e)
+      const rest = e.text.slice(e.end, (e.text.indexOf('\n', e.end) + 1 || e.text.length + 1) - 1)
+      const target = m && before!.length === m[0].length && isBlank(rest) ? nestUnder(e.text, lineStart, m[1].length) : undefined
+      if (m && target) {
+        const { anchor, sibling } = target
+        const indent = sibling ? sibling[1] : ' '.repeat(anchor[0].length)
+        const marker = sibling ? nextMarker(sibling) : childMarker(anchor)
+        const prefix = `${indent}${marker} `
+        let text = e.text.slice(0, lineStart) + prefix + e.text.slice(e.end)
+        if (m[3]) text = renumberFrom(text, lineEnd(text, lineStart), m[1].length, m[3])
+        if (marker.endsWith('.')) text = renumberFrom(text, lineEnd(text, lineStart), indent.length, succ(marker.slice(0, -1)))
+        return { r: { text, cursor: lineStart + prefix.length }, ats }
       }
     }
 
