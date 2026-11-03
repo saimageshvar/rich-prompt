@@ -1,1 +1,16 @@
-{ "modules": ["./register.tsx"] }
+{
+  "modules": ["./register.tsx"],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/version-guard.sh\" rich-prompt 2.1.300",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

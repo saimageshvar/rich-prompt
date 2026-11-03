@@ -95,14 +95,15 @@ None of them act inside code fences or `` `inline code` ``, and the spacing rule
 | Group | Switch | Default |
 |---|---|---|
 | Editor | Lists · Auto-indent · Auto-pair | on |
-| Smart keyboard | Capitalize sentences · Capitalize "i" · Space after punctuation · Double space adds a period · No space before punctuation | off |
-| Autocomplete | Word autocomplete | off |
+| Smart keyboard | Capitalize sentences · Capitalize "i" · Space after punctuation · Double space adds a period · No space before punctuation · Word autocomplete | off |
 
 ---
 
 ## Install
 
-Needs **Claude Code v2.1.287+**. Mods are on by default.
+Needs **Claude Code 2.1.300 or later**: `prompt.autocomplete` arrived in 2.1.292 and
+`prompt.change` in 2.1.300. Mods are on by default. On an older version, rich-prompt shows a
+warning at startup and stays off; run `claude update`.
 
 ```sh
 npx skills add saimageshvar/rich-prompt -g -a claude-code
