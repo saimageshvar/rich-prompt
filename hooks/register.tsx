@@ -186,7 +186,8 @@ const nestUnder = (text: string, lineStart: number, indent: number) => {
   }
 }
 
-const childMarker = (m: RegExpExecArray) => m[2] ?? (/\d/.test(m[3]) ? 'a.' : '-')
+const BULLET_CHILD: Record<string, string> = { '-': '*', '*': '+', '+': '-' }
+const childMarker = (m: RegExpExecArray) => (m[2] ? BULLET_CHILD[m[2]] : /\d/.test(m[3]) ? 'a.' : '-')
 
 const lineEnd = (text: string, from: number) => {
   const i = text.indexOf('\n', from)

@@ -44,7 +44,7 @@ On by default.
 | `- buy milk` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `- buy milk`<br>`- │` | 📝 **Bullets continue** (`-`, `*`, `+`) |
 | `1. clone` then <kbd>Shift</kbd>+<kbd>Enter</kbd> | `1. clone`<br>`2. │` | 🔢 **Numbers count up** (`a.` `B.` letters too) |
 | <kbd>Shift</kbd>+<kbd>Enter</kbd> on an empty `- ` | the empty bullet disappears | 🛑 **Ends the list** |
-| <kbd>Space</kbd> <kbd>Space</kbd> right after an empty marker (`1. │`) | `   a. │` | ⇥ **Sub-indent** without Tab: the child marker follows the parent (`1.` → `a.` → `-`, bullets stay bullets) |
+| <kbd>Space</kbd> <kbd>Space</kbd> right after an empty marker (`1. │`) | `   a. │` | ⇥ **Sub-indent** without Tab: the marker rotates with depth: bullets `-` → `*` → `+` → `-`, numbers `1.` → `a.` → `-` |
 | <kbd>Shift</kbd>+<kbd>Enter</kbd> on an empty `    - ` | one level up: `- │` | ⇤ **Outdents** before ending the list |
 | <kbd>Backspace</kbd> right after an empty `- ` / `2. ` | nested: back up one level; top level: the marker goes | ⌫ **Marker backspace** |
 | new `2. ` inserted in the middle of `1. 2. 3.` | the items below renumber | 🔢 **Renumbers** |
