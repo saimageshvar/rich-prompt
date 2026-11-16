@@ -84,6 +84,8 @@ Off by default. Mobile-keyboard niceties, each its own switch.
 | `done` <kbd>Space</kbd> <kbd>Space</kbd> | `done. ` (**Double space adds a period**) |
 | `well` <kbd>Space</kbd> `,` | `well,` (**No space before punctuation**) |
 
+Backspacing an automatic capital (`H`, or `I`) undoes it: the letter you retype stays lowercase, so `git` at the start of a prompt is one backspace away.
+
 None of them act inside code fences or `` `inline code` ``, and the spacing rule skips URLs, paths and calls like `f(a,b)`. `.` and `:` never get an automatic space, because of `file.txt`, `3.14` and `a:b`.
 
 ---

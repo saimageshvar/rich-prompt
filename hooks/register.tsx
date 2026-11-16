@@ -90,13 +90,21 @@ const startsSentence = (before: string) => {
   return true
 }
 
-const smart = (e: PromptEditInput, s: Settings): PromptEditInput | { text: string; cursor: number } | undefined => {
+const wasAutoCapital = (e: PromptEditInput, s: Settings) => {
+  const gone = e.text[e.start]
+  const before = e.text.slice(0, e.start)
+  if (e.end - e.start !== 1 || e.inputText !== '' || e.key?.key !== 'backspace' || !/^\p{Lu}$/u.test(gone) || inCode(before)) return false
+  const loneI = gone === 'I' && (e.start === 0 || AFTER_I.test(e.text[e.start - 1]))
+  return (s.capitalize && startsSentence(before)) || (s.capitalizeI && loneI)
+}
+
+const smart = (e: PromptEditInput, s: Settings, undone: boolean): PromptEditInput | { text: string; cursor: number } | undefined => {
   const t = e.inputText
   const i = e.start
   const prev = e.text[i - 1]
   const before = e.text.slice(0, i)
   if (inCode(before)) return
-  const loneI = prev === 'i' && (i < 2 || AFTER_I.test(e.text[i - 2]))
+  const loneI = !undone && prev === 'i' && (i < 2 || AFTER_I.test(e.text[i - 2]))
   const swapI = { ...e, text: before.slice(0, -1) + 'I' + e.text.slice(i) }
 
   if (t === ' ') {
@@ -118,7 +126,7 @@ const smart = (e: PromptEditInput, s: Settings): PromptEditInput | { text: strin
     const tok = before.slice(Math.max(before.lastIndexOf(' '), before.lastIndexOf('\n')) + 1)
     const spaced = s.spaceAfterPunct && !!prev && ',;!?'.includes(prev) && tok.length > 1 && PLAIN.test(tok) && WORD.test(e.text[i - 2] ?? '')
     const lead = spaced ? ' ' : ''
-    const up = s.capitalize && /^\p{Ll}$/u.test(t) && startsSentence(before + lead) ? t.toUpperCase() : t
+    const up = s.capitalize && !undone && /^\p{Ll}$/u.test(t) && startsSentence(before + lead) ? t.toUpperCase() : t
     if (lead || up !== t) return { ...e, inputText: lead + up }
   }
 }
@@ -218,8 +226,9 @@ const listPrefixAt = (e: PromptEditInput, upto = e.start) => {
 export const createEditor = (settings: () => Settings) => {
   let armed: Armed | undefined
   let spaced: Spaced | undefined
+  let undone: Spaced | undefined
 
-  const edit = async (e: PromptEditInput, next: Next, ats: number[], spaced: boolean) => {
+  const edit = async (e: PromptEditInput, next: Next, ats: number[], spaced: boolean, undone: boolean) => {
     const s = settings()
     const typed = e.inputText
     const isInsert = e.start === e.end && typed.length === 1 && (e.key?.key === typed || (typed === ' ' && e.key?.key === 'space'))
@@ -297,7 +306,7 @@ export const createEditor = (settings: () => Settings) => {
       }
     }
 
-    const out = isInsert ? smart(e, s) : undefined
+    const out = isInsert ? smart(e, s, undone) : undefined
     if (out) return { r: 'inputText' in out ? await next(out) : out, ats }
 
     return { r: await next(e), ats }
@@ -306,10 +315,14 @@ export const createEditor = (settings: () => Settings) => {
   return async (e: PromptEditInput, next: Next): Promise<PromptEditResult> => {
     const live = armed && armed.len === e.text.length ? armed.ats : []
     const wasSpaced = spaced?.len === e.text.length && spaced.at === e.start
+    const wasUndone = undone?.len === e.text.length && undone.at === e.start
     armed = undefined
     spaced = undefined
-    const { r, ats, added, spaced: pressed } = await edit(e, next, live, wasSpaced)
+    undone = undefined
+    const { r, ats, added, spaced: pressed } = await edit(e, next, live, wasSpaced, wasUndone)
     if (pressed) spaced = { at: r.cursor, len: r.text.length }
+    // Backspacing an auto-capital keeps the retyped letter (and a lone i after it) lowercase, like a phone keyboard
+    if (wasAutoCapital(e, settings()) || (wasUndone && e.inputText === 'i')) undone = { at: r.cursor, len: r.text.length }
     // Closers we inserted stay type-over-able while edits happen before them; leaving the pair forgets them
     const delta = r.text.length - e.text.length
     const kept = ats.filter(at => at >= e.end).map(at => at + delta)
